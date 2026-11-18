@@ -665,22 +665,29 @@ bool ShowLegendEntries(ImPlotItemGroup& items, const ImRect& legend_bb, bool hov
     // vars
     const float txt_ht      = ImGui::GetTextLineHeight();
     const float icon_size   = txt_ht;
-    const float icon_shrink = 2;
     ImU32 col_txt           = GetStyleColorU32(ImPlotCol_LegendText);
     ImU32 col_txt_dis       = ImAlphaU32(col_txt, 0.25f);
     // render each legend item
     float sum_label_width = 0;
     bool any_item_hovered = false;
 
+    bool arePlotsHovered = false;
+    ImPlotContext& gp = *GImPlot;
+    const int n_plots = gp.Plots.GetBufSize();
+    for (int p = 0; p < n_plots; ++p) {
+        ImPlotPlot* plot = gp.Plots.GetByIndex(p);
+        arePlotsHovered |= plot->Hovered;
+    }
+
     const int num_items = items.GetLegendCount();
     if (num_items < 1)
         return hovered;
     // build render order
-    ImPlotContext& gp = *GImPlot;
     ImVector<int>& indices = gp.TempInt1;
     indices.resize(num_items);
     for (int i = 0; i < num_items; ++i)
         indices[i] = i;
+
     if (ImHasFlag(items.Legend.Flags, ImPlotLegendFlags_Sort) && num_items > 1) {
         gp.SortItems = &items;
         qsort(indices.Data, num_items, sizeof(int), LegendSortingComp);
@@ -696,6 +703,7 @@ bool ShowLegendEntries(ImPlotItemGroup& items, const ImRect& legend_bb, bool hov
                                   legend_bb.Min + pad + ImVec2(i * (icon_size + spacing.x) + sum_label_width, 0);
         sum_label_width        += label_width;
         ImRect icon_bb;
+        const float icon_shrink = 2;
         icon_bb.Min = top_left + ImVec2(icon_shrink,icon_shrink);
         icon_bb.Max = top_left + ImVec2(icon_size - icon_shrink, icon_size - icon_shrink);
         ImRect label_bb;
@@ -739,6 +747,13 @@ bool ShowLegendEntries(ImPlotItemGroup& items, const ImRect& legend_bb, bool hov
             col_icon = item->Show ? ImAlphaU32(col_item,0.75f) : ImGui::GetColorU32(ImGuiCol_TextDisabled, 0.75f);
         else
             col_icon = item->Show ? col_item : col_txt_dis;
+
+        if(arePlotsHovered && !item->PlotHovered)
+        {
+            col_icon = ImGui::GetColorU32(ImGuiCol_TextDisabled, 0.5f);
+            col_txt_dis = ImGui::GetColorU32(ImGuiCol_TextDisabled);
+            col_txt_hl = ImGui::GetColorU32(ImGuiCol_TextDisabled);
+        }
 
         DrawList.AddRectFilled(icon_bb.Min, icon_bb.Max, col_icon);
         const char* text_display_end = ImGui::FindRenderedTextEnd(label, nullptr);

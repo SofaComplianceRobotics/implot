@@ -411,6 +411,7 @@ bool BeginItem(const char* label_id, const ImPlotSpec& spec, const ImVec4& item_
     SetupLock();
     bool just_created;
     ImPlotItem* item = RegisterOrGetItem(label_id, spec.Flags, &just_created);
+    item->PlotHovered = IsPlotHovered();
     // set current item
     gp.CurrentItem = item;
     ImPlotNextItemData& s = gp.NextItemData;

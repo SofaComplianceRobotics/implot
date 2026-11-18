@@ -977,6 +977,7 @@ struct ImPlotItem
     int          NameOffset;
     bool         Show;
     bool         LegendHovered;
+    bool         PlotHovered;
     bool         SeenThisFrame;
 
     ImPlotItem() {
@@ -987,6 +988,7 @@ struct ImPlotItem
         Show          = true;
         SeenThisFrame = false;
         LegendHovered = false;
+        PlotHovered = false;
     }
 
     ~ImPlotItem() { ID = 0; }
@@ -1028,7 +1030,7 @@ struct ImPlotItemGroup
     int                ColormapIdx;
     ImPlotMarker       MarkerIdx;
 
-    ImPlotItemGroup() { ID = 0; ColormapIdx = 0; MarkerIdx = 0; }
+    ImPlotItemGroup() { ID = 0; ColormapIdx = 0; MarkerIdx = 0;}
 
     int         GetItemCount() const             { return ItemPool.GetBufSize();                                 }
     ImGuiID     GetItemID(const char*  label_id) { return ImGui::GetID(label_id); /* GetIDWithSeed */            }
